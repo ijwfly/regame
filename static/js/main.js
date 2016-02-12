@@ -1,5 +1,5 @@
 (function () {
-    var url = "ws://" + window.location.hostname + ":7101/ws";
+    var url = "ws://" + window.location.hostname + ":7102/ws";
     var eventsHub = new EventsHub();
     var transport = new WebSocketTransport(url, eventsHub);
     var render = new Render(eventsHub);

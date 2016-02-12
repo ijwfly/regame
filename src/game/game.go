@@ -52,7 +52,7 @@ func (g *Game) turn() {
 }
 
 func (g *Game) makeTurn() {
-	if g.Turn%10 == 0 {
+	if g.Turn%5 == 0 {
 		enemy := NewRandomEnemyFromTop(50)
 		g.World.AddMovable(Movable(enemy))
 	}
