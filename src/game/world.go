@@ -1,16 +1,15 @@
 package game
 
 import (
-	//"kdtree"
 	"kdtree"
 	"sort"
-	"support"
 )
 
 type World struct {
-	Height  float32
-	Width   float32
-	Movable map[int]Movable
+	Height     float32
+	Width      float32
+	Movable    map[int]Movable
+	UnitsArray [][]interface{}
 }
 
 func NewWorld() *World {
@@ -21,13 +20,18 @@ func (w *World) AddMovable(m Movable) {
 	w.Movable[m.GetId()] = m
 }
 
+func (w *World) RemoveUnit(Id int) {
+	delete(w.Movable, Id)
+}
+
 func (w *World) removeOutBoundUnits(boundary float32) {
-	for _, current := range w.Movable {
+	for i := range w.Movable {
+		current := w.Movable[i]
 		x := current.GetX()
 		y := current.GetY()
 		if !(-boundary < x && x < float32(w.Width)+boundary &&
 			-boundary < y && y < float32(w.Height)+boundary) {
-			delete(w.Movable, current.GetId())
+			w.RemoveUnit(current.GetId())
 		}
 	}
 }
@@ -112,7 +116,7 @@ func (w *World) removeDeadUnits() {
 		if obj_structure != nil && obj_structure.GetHealth() <= 0 {
 			delete(w.Movable, obj.GetId())
 			if obj.CanCollide() {
-				w.AddMovable(Movable(NewEffect(obj.GetX(), obj.GetY())))
+				w.AddMovable(obj.GetExplosion())
 			}
 		}
 
@@ -124,18 +128,10 @@ func (w *World) GetUnitsArrayView() [][]interface{} {
 	currentIndex := 0
 	for i := range w.Movable {
 		unit := w.Movable[i]
-		unitView := make([]interface{}, 7)
-		unitView[0] = unit.GetId()
-		unitView[1] = unit.GetType()
-		unitView[2] = support.Round2(unit.GetX())
-		unitView[3] = support.Round2(unit.GetY())
-		unitView[4] = support.Round2(unit.GetSpeedX())
-		unitView[5] = support.Round2(unit.GetSpeedY())
-		unitView[6] = unit.GetRadius()
 		if currentIndex < len(res) {
-			res[currentIndex] = unitView
+			res[currentIndex] = unit.ToArray()
 		} else {
-			res = append(res, unitView)
+			res = append(res, unit.ToArray())
 		}
 		currentIndex++
 	}

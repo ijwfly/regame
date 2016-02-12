@@ -1,6 +1,4 @@
-var blackEnemyImage = '/static/resources/spaceshooter/PNG/Enemies/enemyBlack1.png';
-var blackEnemyImageTexture = PIXI.Texture.fromImage(blackEnemyImage);
-var blackEnemyTexture = new PIXI.Texture(blackEnemyImageTexture, new PIXI.Rectangle(0, 0, 93, 84));
+
 
 function scaleTexture(texture, scale) {
     if (scale === undefined) {
@@ -9,6 +7,21 @@ function scaleTexture(texture, scale) {
     texture.width = texture.width*scale;
     texture.height = texture.height*scale;
 }
+
+var bluePlayerImage = '/static/resources/spaceshooter/PNG/playerShip1_blue.png';
+var bluePlayerImageTexture = PIXI.Texture.fromImage(bluePlayerImage);
+var bluePlayerTexture = new PIXI.Texture(bluePlayerImageTexture, new PIXI.Rectangle(0, 0, 99, 75));
+
+function BluePlayerFactory(parent) {
+    var spaceShip = new PIXI.Sprite(bluePlayerTexture);
+    scaleTexture(spaceShip, 64/99);
+    spaceShip.parentUnit = parent;
+    return spaceShip
+}
+
+var blackEnemyImage = '/static/resources/spaceshooter/PNG/Enemies/enemyBlack1.png';
+var blackEnemyImageTexture = PIXI.Texture.fromImage(blackEnemyImage);
+var blackEnemyTexture = new PIXI.Texture(blackEnemyImageTexture, new PIXI.Rectangle(0, 0, 93, 84));
 
 function BlackEnemyFactory(scale, zIndex, parent) {
     var spaceShip = new PIXI.Sprite(blackEnemyTexture);
@@ -53,10 +66,11 @@ function onAssetsLoaded() {
     }
 }
 
-function ExplosionFactory(scale) {
+function ExplosionFactory(size) {
     var movie = new PIXI.extras.MovieClip(frames);
     movie.animationSpeed = 0.5;
-    scaleTexture(movie, scale);
+    movie.width = size;
+    movie.height = size;
     movie.play();
     return movie;
 }

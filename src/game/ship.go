@@ -86,6 +86,10 @@ func (a *EnemyShip) Collide(b Movable) {
 	}
 }
 
+func (e *EnemyShip) GetExplosion() Movable {
+	return Movable(NewEffect(e.GetX(), e.GetY(), 40))
+}
+
 func NewEnemyShip(X, Y, SpeedX, SpeedY float32) *EnemyShip {
 	unit := NewUnit(X, Y, SpeedX, SpeedY)
 	unit.Type = EnemyType
@@ -131,6 +135,10 @@ func NewPlayerShip(X, Y, SpeedX, SpeedY float32) *PlayerShip {
 	return &PlayerShip{unit}
 }
 
+func (p *PlayerShip) GetExplosion() Movable {
+	return Movable(NewEffect(p.GetX(), p.GetY(), 80))
+}
+
 //=========================================================================
 type Bullet struct {
 	*Unit
@@ -153,10 +161,10 @@ type EffectBullet struct {
 	*Unit
 }
 
-func NewEffect(X, Y float32) *EffectBullet {
+func NewEffect(X, Y, R float32) *EffectBullet {
 	unit := NewUnit(X, Y, 0, 0)
+	unit.Radius = R
 	unit.Type = Effect
-	unit.Radius = 0
 	unit.Gun = Gun(&EffectGun{&SimpleGun{FireState, Movable(unit), 0, 800}})
 	return &EffectBullet{unit}
 }

@@ -6,6 +6,7 @@ function Render(eventsHub) {
     this.turn = 0;
     this.eventsHub = eventsHub;
     this.playerWidth = 64;
+    this.playerId = null;
     document.getElementById("map").appendChild(this.renderer.view);
 
     this.eventsHub.on('ws:received', this.onReceived.bind(this));
@@ -62,14 +63,26 @@ Render.prototype.getView = function() {
     return this.renderer.view;
 };
 
+Render.prototype.setPlayerCursor = function () {
+    if (this.playerId) {
+        document.body.style.cursor = "url('/static/resources/spaceshooter/PNG/playerShip1_blue.png'), pointer"
+    } else {
+        document.body.style.cursor = "wait"
+    }
+};
+
 Render.prototype.addUnits = function(units) {
     var unitsIdArray = [];
-    for(var i = 0; i < units.length; i++) {
-        var parent = units[i];
+    if (units['Player']) {
+        this.playerId = units['Player'][0];
+    } else {
+        this.playerId = null;
+    }
+    for(var i = 0; i < units['Units'].length; i++) {
+        var parent = units['Units'][i];
         if(parent) {
             var parentId = parent[0];
             unitsIdArray.push(parentId);
-
             if (!(parentId in this.units)) {
                 var unit = this.createUnit(parent);
                 if(unit) {
@@ -84,6 +97,7 @@ Render.prototype.addUnits = function(units) {
     }
 
     this.removeDisappeared(unitsIdArray);
+    this.setPlayerCursor()
 };
 
 Render.prototype.createUnit = function(parent) {
@@ -91,6 +105,11 @@ Render.prototype.createUnit = function(parent) {
     var type = parent[1];
     var unit = null;
     switch (type) {
+        case 1:
+            if (parentId != this.playerId) {
+                unit = BluePlayerFactory(parent);
+            }
+            break;
         case 10:
             unit = BlackEnemyFactory(0.5, parentId, parent);
             break;
@@ -98,7 +117,8 @@ Render.prototype.createUnit = function(parent) {
             unit = BlueLaserFactory(0.5, parent);
             break;
         case 30:
-            unit = ExplosionFactory(0.3);
+            var radius = parent[6];
+            unit = ExplosionFactory(radius*2);
             break;
     }
     return unit;

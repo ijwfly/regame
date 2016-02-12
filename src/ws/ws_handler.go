@@ -43,10 +43,21 @@ func HandlerFactory(game *game.Game) func(http.ResponseWriter, *http.Request) {
 		}
 
 		player := game.AddPlayer()
+		var playerDeadTurn int64 = 0
 
 		for err == nil {
 			err = MessageHandler(conn, game, player)
+			if playerDeadTurn == 0 && player.GetStructure().GetHealth() <= 0 {
+				playerDeadTurn = game.Turn
+			}
+			if playerDeadTurn != 0 && playerDeadTurn+200 < game.Turn {
+				player = game.AddPlayer()
+				playerDeadTurn = 0
+			}
+
 		}
+
+		game.World.RemoveUnit(player.GetId())
 	}
 	return res
 }
@@ -58,12 +69,22 @@ type Response struct {
 	Turn    int64
 }
 
+type WorldData struct {
+	Units  [][]interface{}
+	Player []interface{}
+}
+
 func parseCommand(game *game.Game, message map[string]interface{}, player *game.PlayerShip) []byte {
 	resp := Response{"ok", nil, message["command"], game.Turn}
+
 	switch command := message["command"]; command {
 
 	case "get:units":
-		resp.Data = game.World.GetUnitsArrayView()
+		if player.GetStructure().GetHealth() > 0 {
+			resp.Data = WorldData{game.World.UnitsArray, player.ToArray()}
+		} else {
+			resp.Data = WorldData{game.World.UnitsArray, nil}
+		}
 	case "set:player":
 		x, okX := message["X"].(float64)
 		y, okY := message["Y"].(float64)

@@ -52,12 +52,16 @@ func (g *Game) turn() {
 }
 
 func (g *Game) makeTurn() {
-	enemy := NewRandomEnemyFromTop(50)
-	g.World.AddMovable(Movable(enemy))
+	if g.Turn%10 == 0 {
+		enemy := NewRandomEnemyFromTop(50)
+		g.World.AddMovable(Movable(enemy))
+	}
 
 	g.World.makeFire(g.Step * g.Turn)
 	g.World.makeCollisions(g.Step)
 	g.World.removeDeadUnits()
 	g.World.makeMove(g.Step)
 	g.World.removeOutBoundUnits(200)
+
+	g.World.UnitsArray = g.World.GetUnitsArrayView()
 }

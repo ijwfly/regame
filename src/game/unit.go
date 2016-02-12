@@ -1,6 +1,9 @@
 package game
 
-import "math"
+import (
+	"math"
+	"support"
+)
 
 type Structure interface {
 	GetHealth() int
@@ -50,8 +53,10 @@ type Movable interface {
 	SetStructure(Structure)
 	CanCollide() bool
 	Collide(Movable)
+	GetExplosion() Movable
 	GetGun() Gun
 	TimeToHit(Movable) (bool, float32)
+	ToArray() []interface{}
 }
 
 func (u *Unit) GetX() float32 {
@@ -114,6 +119,10 @@ func (a *Unit) Collide(b Movable) {
 	}
 }
 
+func (u *Unit) GetExplosion() Movable {
+	return nil
+}
+
 func (a *Unit) TimeToHit(b Movable) (bool, float32) {
 	if a.GetId() == b.GetId() {
 		return false, 0
@@ -132,4 +141,16 @@ func (a *Unit) TimeToHit(b Movable) (bool, float32) {
 		return false, 0
 	}
 	return true, -(dvdr + float32(math.Sqrt(float64(d)))) / dvdv
+}
+
+func (u *Unit) ToArray() []interface{} {
+	unitView := make([]interface{}, 7)
+	unitView[0] = u.GetId()
+	unitView[1] = u.GetType()
+	unitView[2] = support.Round2(u.GetX())
+	unitView[3] = support.Round2(u.GetY())
+	unitView[4] = support.Round2(u.GetSpeedX())
+	unitView[5] = support.Round2(u.GetSpeedY())
+	unitView[6] = u.GetRadius()
+	return unitView
 }
