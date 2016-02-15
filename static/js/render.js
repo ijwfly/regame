@@ -1,4 +1,4 @@
-function Render(eventsHub) {
+function Render(eventsHub, constants) {
     this.renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, {backgroundColor : 0x1099bb});
     this.stage = new PIXI.Container();
     this.stage.hitArea = new PIXI.Rectangle(0, 0, window.innerWidth, window.innerHeight);
@@ -7,6 +7,7 @@ function Render(eventsHub) {
     this.eventsHub = eventsHub;
     this.playerWidth = 64;
     this.playerId = null;
+    this.constants = constants;
     document.getElementById("map").appendChild(this.renderer.view);
 
     this.eventsHub.on('ws:received', this.onReceived.bind(this));
@@ -82,6 +83,7 @@ Render.prototype.addUnits = function(units) {
         var parent = units['Units'][i];
         if(parent) {
             var parentId = parent[0];
+            var unitType = parent[1];
             unitsIdArray.push(parentId);
             if (!(parentId in this.units)) {
                 var unit = this.createUnit(parent);
@@ -90,6 +92,9 @@ Render.prototype.addUnits = function(units) {
                     this.addUnit(unit)
                 }
             } else {
+                if (unitType == 1) {
+                    this.updatePlayersSpeed(this.units[parentId], parent, this.constants.unitsUpdateTime);
+                }
                 this.updateUnit(this.units[parentId], parent);
             }
         }
@@ -122,6 +127,11 @@ Render.prototype.createUnit = function(parent) {
             break;
     }
     return unit;
+};
+
+Render.prototype.updatePlayersSpeed = function(unit, parent, updateTime) {
+    parent[4] = (parent[2] - unit.parentUnit[2])/updateTime;
+    parent[5] = (parent[3] - unit.parentUnit[3])/updateTime;
 };
 
 Render.prototype.updateUnit = function(unit, parent) {
