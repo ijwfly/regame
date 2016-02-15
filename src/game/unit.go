@@ -1,7 +1,6 @@
 package game
 
 import (
-	"math"
 	"support"
 )
 
@@ -51,11 +50,11 @@ type Movable interface {
 	Move(gameStep int64)
 	GetStructure() Structure
 	SetStructure(Structure)
+	CanBeDestroyed() bool
 	CanCollide() bool
 	Collide(Movable)
 	GetExplosion() Movable
 	GetGun() Gun
-	TimeToHit(Movable) (bool, float32)
 	ToArray() []interface{}
 }
 
@@ -100,6 +99,10 @@ func (u *Unit) SetStructure(s Structure) {
 	u.Structure = s
 }
 
+func (u *Unit) CanBeDestroyed() bool {
+	return u.GetStructure() != nil && u.GetStructure().GetHealth() > 0
+}
+
 func (u *Unit) GetGun() Gun {
 	return u.Gun
 }
@@ -109,38 +112,22 @@ func (u *Unit) CanCollide() bool {
 }
 
 func (a *Unit) Collide(b Movable) {
-	if a.GetStructure() != nil && b.GetStructure() != nil {
-		aHealth := a.GetStructure().GetHealth()
-		bHealth := b.GetStructure().GetHealth()
+	if a.CanBeDestroyed() && b.CanBeDestroyed() {
+		aStructure := a.GetStructure()
+		aHealth := aStructure.GetHealth()
+
+		bStructure := b.GetStructure()
+		bHealth := bStructure.GetHealth()
+
 		if aHealth > 0 && bHealth > 0 {
-			a.GetStructure().SetHealth(aHealth - bHealth)
-			b.GetStructure().SetHealth(bHealth - aHealth)
+			aStructure.SetHealth(aHealth - bHealth)
+			bStructure.SetHealth(bHealth - aHealth)
 		}
 	}
 }
 
 func (u *Unit) GetExplosion() Movable {
 	return nil
-}
-
-func (a *Unit) TimeToHit(b Movable) (bool, float32) {
-	if a.GetId() == b.GetId() {
-		return false, 0
-	}
-	dx, dy := b.GetX()-a.GetX(), b.GetY()-a.GetY()
-	dvx, dvy := b.GetSpeedX()-a.GetSpeedX(), b.GetSpeedY()-a.GetSpeedY()
-	dvdr := dx*dvx + dy*dvy
-	if dvdr > 0 {
-		return false, 0
-	}
-	dvdv := dvx*dvx + dvy*dvy
-	drdr := dx*dx + dy*dy
-	sigma := a.Radius + b.GetRadius()
-	d := dvdr*dvdr - dvdv*(drdr-sigma*sigma)
-	if d < 0 {
-		return false, 0
-	}
-	return true, -(dvdr + float32(math.Sqrt(float64(d)))) / dvdv
 }
 
 func (u *Unit) ToArray() []interface{} {
