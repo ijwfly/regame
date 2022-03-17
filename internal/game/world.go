@@ -1,7 +1,5 @@
 package game
 
-import ()
-
 type World struct {
 	Height     float32
 	Width      float32
