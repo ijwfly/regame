@@ -3,9 +3,9 @@ package ws
 import (
 	"encoding/json"
 	"fmt"
-	"game"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"regame/internal/game"
 )
 
 var upgrader = websocket.Upgrader{

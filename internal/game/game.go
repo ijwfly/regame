@@ -1,7 +1,7 @@
 package game
 
 import (
-	"support"
+	"regame/internal/support"
 	"time"
 )
 

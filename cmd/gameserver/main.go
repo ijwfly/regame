@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"game"
 	"html/template"
 	"net/http"
-	"ws"
+	"regame/internal/game"
+	"regame/internal/ws"
 )
 
 var homeTempl = template.Must(template.ParseFiles("templates/home.html"))

@@ -1,8 +1,8 @@
 package game
 
 import (
-	"kdtree"
 	"math"
+	"regame/pkg/kdtree"
 	"sort"
 )
 
